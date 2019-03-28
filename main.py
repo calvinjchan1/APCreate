@@ -1,7 +1,9 @@
 import pygame, sys
+import generator
 
 #Config
 WINDOW_DIMENSIONS = (640,450)
+MAP_DIMENSIONS = (200, 200)
 tileDict = {
     0:"grey",
     1:"green",
@@ -12,9 +14,10 @@ def start():
     '''
     Run once at the beginning of the program
     '''
-    global tileMap, screen
+    global tileMap, screen, gameClock
     pygame.init()
     screen = pygame.display.set_mode(WINDOW_DIMENSIONS)
+    gameClock = pygame.time.Clock()
     '''
     Map of tiles, where tile[y][x] is a certain integer
     '''
@@ -23,6 +26,7 @@ def start():
                 [1, 0, 1, 2, 1, 1],
                 [1, 1, 1, 2, 2, 2]
     ]
+    tileMap = generator.createMap(MAP_DIMENSIONS)
     #Offset coordinates used to move the map
     global offsetX, offsetY
     offsetX = 0
@@ -72,19 +76,24 @@ def mainLoop():
                 '''
                 Draws a tile at the given coordinates
                 '''
+                
                 screen.fill(pygame.Color(tileDict[tile]), (x*32, y*32, 32, 32))
                 
             #Draw the tiles based off of the map
-            for y, column in enumerate(tileMap):
+            for y, column in enumerate(tileMap):#TODO: TOO SLOW, ONLY DRAW THINGS ON SCREEN
                 for x, tile in enumerate(column):
                     drawTile(x+offsetX, y+offsetY, tile)
         drawBackground()
         drawMap()
         pygame.display.flip()
-        
+
+    def handleTime():
+        print(gameClock.get_fps())
+        gameClock.tick()
 
     #MAIN LOOP STARTS HERE
     while(True):
+        handleTime()
         handleEvents()
         draw()
 
