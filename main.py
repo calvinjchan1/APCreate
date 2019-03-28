@@ -1,9 +1,9 @@
-import pygame, sys
+import pygame, sys, math
 import generator
 
 #Config
 WINDOW_DIMENSIONS = (640,450)
-MAP_DIMENSIONS = (200, 200)
+MAP_DIMENSIONS = (2000, 2000)
 tileDict = {
     0:"grey",
     1:"green",
@@ -51,13 +51,13 @@ def mainLoop():
             if event.type == pygame.KEYDOWN:
                 #Handle movement using arrow keys
                 if event.key == pygame.K_LEFT:
-                    offsetX+=1
-                if event.key == pygame.K_RIGHT:
                     offsetX-=1
+                if event.key == pygame.K_RIGHT:
+                    offsetX+=1
                 if event.key == pygame.K_UP:
-                    offsetY+=1
-                if event.key == pygame.K_DOWN:
                     offsetY-=1
+                if event.key == pygame.K_DOWN:
+                    offsetY+=1
             
     def draw():
         '''
@@ -79,10 +79,23 @@ def mainLoop():
                 
                 screen.fill(pygame.Color(tileDict[tile]), (x*32, y*32, 32, 32))
                 
-            #Draw the tiles based off of the map
+            '''#Draw the tiles based off of the map
             for y, column in enumerate(tileMap):#TODO: TOO SLOW, ONLY DRAW THINGS ON SCREEN
                 for x, tile in enumerate(column):
-                    drawTile(x+offsetX, y+offsetY, tile)
+                    drawTile(x+offsetX, y+offsetY, tile)'''
+            '''
+            We only want to draw the tiles that are on the screen, as to avoid drawing one billion tiles every frame with large maps
+            So we should loop through the tiles that should be on screen and try to draw them if they exist
+            map[][offsetX] is left edge of screen
+            map[][ceil(WINDOW_DIMENSIONS[0]/32+offsetX] is right edge of screen
+            We need to cap at 0 so we don't go into negative index, because python takes that as seraching from end of list
+            '''
+            for x in range(max(offsetX, 0), max(math.ceil(WINDOW_DIMENSIONS[0]/32+offsetX), 0)):
+                for y in range(max(offsetY,0), max(math.ceil(WINDOW_DIMENSIONS[1]/32+offsetY),0)):
+                    try:
+                        drawTile(x-offsetX, y-offsetY, tileMap[y][x])
+                    except IndexError:
+                        pass
         drawBackground()
         drawMap()
         pygame.display.flip()
