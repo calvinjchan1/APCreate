@@ -10,21 +10,21 @@ def init():
     '''
     Initalizes the object module, call before using
     '''
-    global objList
-    objList = []
+    global objSet
+    objSet = set()
 
 class Obj:
     '''
     Basic Object class
     '''
     def __init__(self, x, y):
-        self.x = x;
-        self.y = y;
-        objList.append(self)
+        self.x = x
+        self.y = y
+        objSet.add(self)
 
-    def draw(self):
+    def draw(self, screen, offsetX, offsetY):
         pass
 
     def kill(self):
-        pass
+        objSet.remove(self)
 

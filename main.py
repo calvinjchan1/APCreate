@@ -1,6 +1,6 @@
 import pygame, sys, math
-import generator
-import object
+from src import generator, obj
+from src.objs import player
 #TODO: Variable tile size - zoom zoom
 
 #Config
@@ -26,7 +26,7 @@ def start():
     '''
     Run once at the beginning of the program
     '''
-    global tileMap, screen, gameClock
+    global tileMap, screen, gameClock, plyr
 
     #Init pygame
     pygame.init()
@@ -42,7 +42,10 @@ def start():
     offsetY = 0
 
     #Init objects
-    object.init()
+    obj.init()
+
+    #Make the player
+    plyr = player.Player(1, 1)
 
 def mainLoop():
     '''
@@ -63,13 +66,25 @@ def mainLoop():
             if event.type == pygame.KEYDOWN:
                 #Handle movement using arrow keys
                 if event.key == pygame.K_LEFT:
-                    offsetX-=1
+                    #offsetX-=1
+                    plyr.move("LEFT")
                 if event.key == pygame.K_RIGHT:
-                    offsetX+=1
+                    #offsetX+=1
+                    plyr.move("RIGHT")
                 if event.key == pygame.K_UP:
-                    offsetY-=1
+                    #offsetY-=1
+                    plyr.move("UP")
                 if event.key == pygame.K_DOWN:
-                    offsetY+=1
+                    #offsetY+=1
+                    plyr.move("DOWN")
+
+    def handleCamera():
+        '''
+        centers camera on the player
+        '''
+        global offsetX, offsetY
+        offsetX = plyr.x-WINDOW_DIMENSIONS[0]/64
+        offsetY = plyr.y-WINDOW_DIMENSIONS[1]/64
 
     def draw():
         '''
@@ -98,16 +113,24 @@ def mainLoop():
             map[][ceil(WINDOW_DIMENSIONS[0]/32+offsetX] is right edge of screen
             We need to cap at 0 so we don't go into negative index, because python takes that as seraching from end of list
             '''
-            for x in range(max(offsetX, 0), max(math.ceil(WINDOW_DIMENSIONS[0]/32+offsetX), 0)):
-                for y in range(max(offsetY,0), max(math.ceil(WINDOW_DIMENSIONS[1]/32+offsetY),0)):
+            for x in range(math.floor(max(offsetX, 0)), math.ceil(max(math.ceil(WINDOW_DIMENSIONS[0]/32+offsetX), 0))):
+                for y in range(math.floor(max(offsetY,0)), math.ceil(max(math.ceil(WINDOW_DIMENSIONS[1]/32+offsetY),0))):
                     try:
                         drawTile(x-offsetX, y-offsetY, tileMap[y][x])
                     except IndexError:
                         pass
-            screen.fill(pygame.Color("red"), (5*32+8, 5*32+8, 16, 16))
 
+        def drawObjs():
+            '''
+            Draws all the objects
+            '''
+            for o in obj.objSet:
+                o.draw(screen, offsetX, offsetY)
+
+        handleCamera()
         drawBackground()
         drawMap()
+        drawObjs()
         pygame.display.flip()
 
     def handleTime():
