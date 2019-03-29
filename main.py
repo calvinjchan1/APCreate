@@ -1,36 +1,48 @@
 import pygame, sys, math
 import generator
+import object
+#TODO: Variable tile size - zoom zoom
 
 #Config
-WINDOW_DIMENSIONS = (640,450)
-MAP_DIMENSIONS = (2000, 2000)
+DEBUG = False
+WINDOW_DIMENSIONS = (1000,600)
+MAP_DIMENSIONS = (200, 200)
 tileDict = {
     0:"grey",
     1:"green",
-    2:"blue"
+    2:"darkblue",
+    3:"blue"
 }
+
+def dprint(tag, msg):
+    '''
+    Used for printing debug messages that will only show up if
+    the debug variabe is equal to the given tag
+    '''
+    if DEBUG == tag:
+        print(msg)
 
 def start():
     '''
     Run once at the beginning of the program
     '''
     global tileMap, screen, gameClock
+
+    #Init pygame
     pygame.init()
     screen = pygame.display.set_mode(WINDOW_DIMENSIONS)
     gameClock = pygame.time.Clock()
     '''
     Map of tiles, where tile[y][x] is a certain integer
     '''
-    tileMap = [
-                [1, 1, 1, 2, 2, 1],
-                [1, 0, 1, 2, 1, 1],
-                [1, 1, 1, 2, 2, 2]
-    ]
     tileMap = generator.createMap(MAP_DIMENSIONS)
     #Offset coordinates used to move the map
     global offsetX, offsetY
     offsetX = 0
     offsetY = 0
+
+    #Init objects
+    object.init()
 
 def mainLoop():
     '''
@@ -41,7 +53,7 @@ def mainLoop():
         '''
         Deals with all of the user input
         '''
-        
+
         for event in pygame.event.get():
             #Exit the game
             if event.type == pygame.QUIT:
@@ -58,7 +70,7 @@ def mainLoop():
                     offsetY-=1
                 if event.key == pygame.K_DOWN:
                     offsetY+=1
-            
+
     def draw():
         '''
         Handles draw everything to the screen
@@ -76,13 +88,9 @@ def mainLoop():
                 '''
                 Draws a tile at the given coordinates
                 '''
-                
+
                 screen.fill(pygame.Color(tileDict[tile]), (x*32, y*32, 32, 32))
-                
-            '''#Draw the tiles based off of the map
-            for y, column in enumerate(tileMap):#TODO: TOO SLOW, ONLY DRAW THINGS ON SCREEN
-                for x, tile in enumerate(column):
-                    drawTile(x+offsetX, y+offsetY, tile)'''
+
             '''
             We only want to draw the tiles that are on the screen, as to avoid drawing one billion tiles every frame with large maps
             So we should loop through the tiles that should be on screen and try to draw them if they exist
@@ -96,12 +104,14 @@ def mainLoop():
                         drawTile(x-offsetX, y-offsetY, tileMap[y][x])
                     except IndexError:
                         pass
+            screen.fill(pygame.Color("red"), (5*32+8, 5*32+8, 16, 16))
+
         drawBackground()
         drawMap()
         pygame.display.flip()
 
     def handleTime():
-        print(gameClock.get_fps())
+        dprint("fps", gameClock.get_fps())
         gameClock.tick()
 
     #MAIN LOOP STARTS HERE
