@@ -26,7 +26,7 @@ def start():
     '''
     Run once at the beginning of the program
     '''
-    global tileMap, screen, gameClock, plyr, tileSize, debugFont
+    global tileMap, screen, gameClock, plyr, tileSize, debugFont, deltaTime
 
     #Init pygame
     pygame.init()
@@ -38,8 +38,8 @@ def start():
     Map of tiles, where tile[y][x] is a certain integer
     '''
     tileSize = 32;
-
     tileMap = generator.createMap(MAP_DIMENSIONS)
+
     #Offset coordinates used to move the map
     global offsetX, offsetY
     offsetX = 0
@@ -47,6 +47,7 @@ def start():
 
     #Init objects
     obj.init()
+    deltaTime = 1
 
     #Make the player
     plyr = player.Player(1, 1)
@@ -67,20 +68,35 @@ def mainLoop():
                 pygame.quit()
                 sys.exit()
 
+            if event.type == pygame.KEYUP:
+                #Handle movement using arrow keys
+                if event.key == pygame.K_LEFT:
+                    #offsetX-=1
+                    plyr.setMove("LEFT", False)
+                elif event.key == pygame.K_RIGHT:
+                    #offsetX+=1
+                    plyr.setMove("RIGHT", False)
+                elif event.key == pygame.K_UP:
+                    #offsetY-=1
+                    plyr.setMove("UP", False)
+                elif event.key == pygame.K_DOWN:
+                    #offsetY+=1
+                    plyr.setMove("DOWN", False)
+
             if event.type == pygame.KEYDOWN:
                 #Handle movement using arrow keys
                 if event.key == pygame.K_LEFT:
                     #offsetX-=1
-                    plyr.move("LEFT")
+                    plyr.setMove("LEFT", True)
                 elif event.key == pygame.K_RIGHT:
                     #offsetX+=1
-                    plyr.move("RIGHT")
+                    plyr.setMove("RIGHT", True)
                 elif event.key == pygame.K_UP:
                     #offsetY-=1
-                    plyr.move("UP")
+                    plyr.setMove("UP", True)
                 elif event.key == pygame.K_DOWN:
                     #offsetY+=1
-                    plyr.move("DOWN")
+                    plyr.setMove("DOWN", True)
 
                 #Handle Zoom
                 elif event.key == pygame.K_MINUS:
@@ -93,6 +109,10 @@ def mainLoop():
                         tileSize+=2
                     elif(tileSize<64):
                         tileSize+=8
+
+    def tick():
+        for o in obj.objSet:
+                o.onTick(deltaTime)
 
     def handleCamera():
         '''
@@ -147,7 +167,7 @@ def mainLoop():
             '''
             Draws debug text
             '''
-            textSurface = debugFont.render('Tile Size: '+ str(tileSize), False, (255, 255, 255), (0, 0, 0))
+            textSurface = debugFont.render('Tile Size: '+ str(tileSize)+" FPS: "+str(gameClock.get_fps()), False, (255, 255, 255), (0, 0, 0))
             screen.blit(textSurface, (10, 10))
 
         handleCamera()
@@ -158,13 +178,14 @@ def mainLoop():
         pygame.display.flip()
 
     def handleTime():
-        dprint("fps", gameClock.get_fps())
-        gameClock.tick()
+        global deltaTime
+        deltaTime = gameClock.tick(70)
 
     #MAIN LOOP STARTS HERE
     while(True):
         handleTime()
         handleEvents()
+        tick()
         draw()
 
 def main():

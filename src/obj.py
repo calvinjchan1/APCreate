@@ -22,6 +22,9 @@ class Obj:
         self.y = y
         objSet.add(self)
 
+    def onTick(self):
+        pass
+
     def draw(self, screen, offsetX, offsetY, tileSize):
         pass
 
