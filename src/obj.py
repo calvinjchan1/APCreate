@@ -22,7 +22,7 @@ class Obj:
         self.y = y
         objSet.add(self)
 
-    def draw(self, screen, offsetX, offsetY):
+    def draw(self, screen, offsetX, offsetY, tileSize):
         pass
 
     def kill(self):

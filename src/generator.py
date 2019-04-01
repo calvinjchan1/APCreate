@@ -21,7 +21,7 @@ def createMap(dimensions):
         x and y are passed as the first 2 parameters to the function,
         and when actually calling the function should not be used
         example:
-        
+
         @onEachTile
         def exampleFunc(x, y, num):
             map[y][x] = num
@@ -55,7 +55,7 @@ def createMap(dimensions):
                             pass
         if random.random()<0.005:
             island(x, y, 0.8)
-            
+
     @onEachTile
     def makeCoast(x, y):
         if map[y][x] == 1:
@@ -66,7 +66,7 @@ def createMap(dimensions):
                             map[y+i][x+j] = 3
                     except IndexError:
                         pass
-        
+
     map = []
     initMap(2)
     makeIslands()
@@ -75,4 +75,4 @@ def createMap(dimensions):
     return map
 
 
-    
+
