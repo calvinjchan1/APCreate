@@ -1,5 +1,7 @@
 import random
 
+seed = 5
+
 def createMap(dimensions):
     '''
     This function returns a map list of dimensions given
@@ -53,6 +55,7 @@ def createMap(dimensions):
                             island(x+i, y+j, count-0.1)
                         except IndexError:
                             pass
+                        #if random.random() < .4 if 4 else .1: map[y][x] == 4 FIX ME
         if random.random()<0.005:
             island(x, y, 0.8)
 
@@ -71,8 +74,36 @@ def createMap(dimensions):
     initMap(2)
     makeIslands()
     makeCoast()
-    print(random.random())
     return map
 
+def uNum(x, y):
+    '''
+    Returns a number that will be different from every other x
+    and y given
+    X and Y should both be integers
+    '''
+    def convert(num):
+        #Converts number into unique string of numbers
+        neg = False
+        if num<0:
+            neg = True
+        val = str(bin(abs(num)))[2:]
+        val = "2" if neg else "3" + val
+        return val
+
+    print(convert(5))
 
 
+#Make each chunk a 32x 32 area?
+class chunk:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.map = []
+        random.seed(seed*self.x*self.y)
+        for y in range(32):
+            for x in range(32):
+                self.map[y][x] = 1
+
+
+uNum(0,0)

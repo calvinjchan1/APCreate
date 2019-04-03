@@ -1,6 +1,7 @@
 import pygame, sys, math
 from src import generator, obj
 from src.objs import player
+import time
 #TODO: Variable tile size - zoom zoom
 
 #Config
@@ -11,7 +12,8 @@ tileDict = {
     0:"grey",
     1:"green",
     2:"darkblue",
-    3:"blue"
+    3:"blue",
+    4:"#442f06"
 }
 
 def dprint(tag, msg):
@@ -26,7 +28,7 @@ def start():
     '''
     Run once at the beginning of the program
     '''
-    global tileMap, screen, gameClock, plyr, tileSize, debugFont, deltaTime
+    global tileMap, screen, gameClock, plyr, tileSize, debugFont, deltaTime, oldTime
 
     #Init pygame
     pygame.init()
@@ -44,6 +46,9 @@ def start():
     global offsetX, offsetY
     offsetX = 0
     offsetY = 0
+
+    #Deal with time
+    oldTime = time.time()
 
     #Init objects
     obj.init()
@@ -119,8 +124,8 @@ def mainLoop():
         centers camera on the player
         '''
         global offsetX, offsetY
-        offsetX = plyr.x-WINDOW_DIMENSIONS[0]/tileSize/2
-        offsetY = plyr.y-WINDOW_DIMENSIONS[1]/tileSize/2
+        offsetX = plyr.x-WINDOW_DIMENSIONS[0]/tileSize/2+.5
+        offsetY = plyr.y-WINDOW_DIMENSIONS[1]/tileSize/2+.5
 
     def draw():
         '''
@@ -166,9 +171,19 @@ def mainLoop():
         def drawText():
             '''
             Draws debug text
+            Does each line in lines from top to bottom
             '''
-            textSurface = debugFont.render('Tile Size: '+ str(tileSize)+" FPS: "+str(gameClock.get_fps()), False, (255, 255, 255), (0, 0, 0))
-            screen.blit(textSurface, (10, 10))
+            lines = [
+                'Tile Size: '+ str(tileSize),
+                "FPS: "+str(gameClock.get_fps()),
+                "X: " + str(plyr.x) + " Y: " + str(plyr.y)
+            ]
+            y = 10
+            for line in lines:
+                textSurface = debugFont.render(line, False, (255, 255, 255), (0, 0, 0))
+                textHeight = textSurface.get_size()[1]
+                screen.blit(textSurface, (10, y))
+                y+=textHeight
 
         handleCamera()
         drawBackground()
@@ -178,8 +193,10 @@ def mainLoop():
         pygame.display.flip()
 
     def handleTime():
-        global deltaTime
-        deltaTime = gameClock.tick(70)
+        global deltaTime, oldTime
+        gameClock.tick(70)
+        deltaTime = (time.time()-oldTime)*1000
+        oldTime = time.time()
 
     #MAIN LOOP STARTS HERE
     while(True):
