@@ -1,6 +1,7 @@
-import random
+import random, opensimplex
 
 seed = 5
+noise = opensimplex.OpenSimplex(seed)
 
 def createMap(dimensions):
     '''
@@ -70,10 +71,18 @@ def createMap(dimensions):
                     except IndexError:
                         pass
 
+    @onEachTile
+    def noiseMap(x, y, zoom):
+        n = noise.noise2d(x/zoom, y/zoom) #Get the noise for this tile
+        if n < 0:
+            map[y][x] = 2
+        elif n < .2:
+            map[y][x] = 3
+        else:
+            map[y][x] = 1
     map = []
     initMap(2)
-    makeIslands()
-    makeCoast()
+    noiseMap(15)
     return map
 
 def uNum(x, y):
