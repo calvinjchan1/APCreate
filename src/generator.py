@@ -86,6 +86,7 @@ def createMap(dimensions):
     return map
 
 def uNum(x, y):
+    #UNFINISHED
     '''
     Returns a number that will be different from every other x
     and y given
@@ -104,15 +105,36 @@ def uNum(x, y):
 
 
 #Make each chunk a 32x 32 area?
-class chunk:
+class Chunk:
+
+    chunk_width = 32
+    chunk_height = 32
+    chunks = set()
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.map = []
-        random.seed(seed*self.x*self.y)
-        for y in range(32):
-            for x in range(32):
-                self.map[y][x] = 1
+        #Initilize map
+        self.map = [[0 for x in range(Chunk.chunk_width)]for y in range(Chunk.chunk_height)]
+        self.generate()
+        Chunk.chunks.add(self)
+
+    def generate(self):
+        #Generates the chunk
+        for y in self.map:
+            for x in y:
+                n = noise.noise2d(x/zoom, y/zoom) #Get the noise for this tile
+                if n < 0:
+                    map[y][x] = 2
+                elif n < .2:
+                    map[y][x] = 3
+                else:
+                    map[y][x] = 1
+
+    def kill(self):
+        #Call when you are done with the chunk
+        Chunk.chunks.remove(self)
 
 
-uNum(0,0)
+
+
