@@ -41,6 +41,11 @@ def start():
     '''
     tileSize = 32;
     tileMap = generator.createMap(MAP_DIMENSIONS)
+    #TEMPORARY:
+    for x in range(-1, 2):
+        for y in range(-1, 2):
+            generator.Chunk(x, y)
+
 
     #Offset coordinates used to move the map
     global offsetX, offsetY
@@ -154,12 +159,18 @@ def mainLoop():
             map[][ceil(WINDOW_DIMENSIONS[0]/32+offsetX] is right edge of screen
             We need to cap at 0 so we don't go into negative index, because python takes that as seraching from end of list
             '''
-            for x in range(math.floor(max(offsetX, 0)), math.ceil(max(math.ceil(WINDOW_DIMENSIONS[0]/tileSize+offsetX), 0))):
-                for y in range(math.floor(max(offsetY,0)), math.ceil(max(math.ceil(WINDOW_DIMENSIONS[1]/tileSize+offsetY),0))):
+            for x in range(math.floor(offsetX), math.ceil(math.ceil(WINDOW_DIMENSIONS[0]/tileSize+offsetX))):
+                for y in range(math.floor(offsetY), math.ceil(math.ceil(WINDOW_DIMENSIONS[1]/tileSize+offsetY))):
                     try:
-                        drawTile(x-offsetX, y-offsetY, tileMap[y][x])
-                    except IndexError:
+                        chunk_x = math.floor(x/generator.Chunk.chunk_width)
+                        chunk_y = math.floor(y/generator.Chunk.chunk_height)
+                        tile = generator.Chunk.chunks[(chunk_x, chunk_y)].map[y%generator.Chunk.chunk_height][x%generator.Chunk.chunk_width]
+                        drawTile(x-offsetX, y-offsetY, tile)
+                    except KeyError:
                         pass
+
+
+
 
         def drawObjs():
             '''
