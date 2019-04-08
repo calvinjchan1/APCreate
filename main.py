@@ -41,10 +41,6 @@ def start():
     '''
     tileSize = 32;
     tileMap = generator.createMap(MAP_DIMENSIONS)
-    #TEMPORARY:
-    for x in range(-1, 2):
-        for y in range(-1, 2):
-            generator.Chunk(x, y)
 
 
     #Offset coordinates used to move the map

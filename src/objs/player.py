@@ -1,7 +1,8 @@
 '''
 Contains the class for the player object
 '''
-import pygame
+import pygame, math
+from src import generator
 from src import obj
 
 
@@ -13,6 +14,7 @@ class Player(obj.Obj):
         super().__init__(x, y)
         self.dirTimes = [False, False, False, False] #UP, DOWN, LEFT, RIGHT
         self.dirTimer = 0
+        self.updateChunks(1)
 
     def draw(self, screen, offsetX, offsetY, tileSize):
         #Draw an orange triangle in the middle of the tile
@@ -62,3 +64,20 @@ class Player(obj.Obj):
             self.x+=1
         elif direction == "LEFT":
             self.x-=1
+        self.updateChunks(1)
+
+    def updateChunks(self, distance):
+        '''
+        Updates the chunks around the player, loading new ones that are close
+        and unloading far away ones
+        '''
+        chunk_x = math.floor(self.x/generator.Chunk.chunk_width)
+        chunk_y = math.floor(self.y/generator.Chunk.chunk_height)
+        tempChunks = {}
+        for x in range(chunk_x-distance, chunk_x+1+distance):
+            for y in range(chunk_y-distance, chunk_y+1+distance):
+                try:
+                    tempChunks[(x, y)] = generator.Chunk.chunks[(x, y)]
+                except KeyError:
+                    tempChunks[(x, y)] = generator.Chunk(x, y)
+        generator.Chunk.chunks = tempChunks
