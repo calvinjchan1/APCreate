@@ -13,7 +13,7 @@ tileDict = {
     1:"green",
     2:"darkblue",
     3:"blue",
-    4:"#442f06"
+    4:"#c6a664"
 }
 
 def dprint(tag, msg):

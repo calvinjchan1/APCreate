@@ -126,11 +126,13 @@ class Chunk:
             for x, tile in enumerate(self.map):
                 n = noise.noise2d((x+self.x*Chunk.chunk_width)/15, (y+self.y*Chunk.chunk_height)/15) #Get the noise for this tile
                 if n < 0:
-                    self.map[y][x] = 2
+                    self.map[y][x] = 2 #Ocean
                 elif n < .2:
-                    self.map[y][x] = 3
+                    self.map[y][x] = 3 #Coast
+                elif n < 0.3:
+                    self.map[y][x] = 4 #Beach
                 else:
-                    self.map[y][x] = 1
+                    self.map[y][x] = 1 #Land
 
     def kill(self):
         #Call when you are done with the chunk
