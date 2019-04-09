@@ -8,7 +8,7 @@ from src import obj, constants
 
 
 #CONFIG
-MOVE_INTERVAL = 50 #How many miliseconds to wait between movements when key is held down
+MOVE_INTERVAL = 100 #How many miliseconds to wait between movements when key is held down
 
 class Player(obj.Obj):
     viewDist = 4
