@@ -8,7 +8,6 @@ seed = 5
 b = 1
 random.seed(seed)
 #biomeNoise = opensimplex.OpenSimplex(seed*seed)
-print(randInt())
 localElevationNoise = opensimplex.OpenSimplex(randInt())
 largeElevationNoise = opensimplex.OpenSimplex(randInt())
 
@@ -60,15 +59,13 @@ class Chunk:
                         self.map[y][x] = 3 #Coast
                     else:
                         self.map[y][x] = 4 #Sand
-                elif elevation < 0:
+                elif elevation < .05:
                     if localElevation < .4:
                         self.map[y][x] = 2 #Ocean
                     else:
                         self.map[y][x] = 3 #Coast
                     #self.map[y][x] = 7
                 #Continents
-                elif elevation < .05:
-                    self.map[y][x] = 2 #Ocean
                 elif elevation < .25:
                     self.map[y][x] = 3 #Coast
                 elif elevation < .35:

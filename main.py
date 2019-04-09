@@ -43,7 +43,7 @@ def start():
     '''
     Map of tiles, where tile[y][x] is a certain integer
     '''
-    tileSize = 32;
+    tileSize = 4
     #mapSurface = pygame.Surface(((player.Player.viewDist*2+1)*generator.Chunk.chunk_width*tileSize, (player.Player.viewDist*2+1)*generator.Chunk.chunk_height*tileSize))
 
 
@@ -63,7 +63,8 @@ def start():
     plyr = player.Player(1, 1)
 
     #Init map stuff
-    updateMapSurf(True)
+    #updateMapSurf(True)
+    zoom(0)
 def updateMapSurf(deep = False):
     '''
     Updates map Surface.
@@ -94,6 +95,17 @@ def updateMapSurf(deep = False):
                 chunk.new = False
             mapSurface.blit(chunk.mapSurf, (cx*generator.Chunk.chunk_width*tileSize, cy*generator.Chunk.chunk_height*tileSize))
 
+
+def zoom (amount):
+    global tileSize
+    tileSize += amount
+    if WINDOW_DIMENSIONS[0] > WINDOW_DIMENSIONS[1]:
+        chunks_needed = math.ceil(WINDOW_DIMENSIONS[0]/tileSize/generator.Chunk.chunk_width)+1
+    else:
+        chunks_needed = math.ceil(WINDOW_DIMENSIONS[1]/tileSize/generator.Chunk.chunk_height)+1
+    player.Player.viewDist = math.ceil(max(0, (chunks_needed-1)/2))
+    plyr.updateChunks(player.Player.viewDist)
+    updateMapSurf(True)
 
 def mainLoop():
     '''
@@ -144,16 +156,15 @@ def mainLoop():
                 #Handle Zoom
                 elif event.key == pygame.K_MINUS:
                     if(tileSize > 8):
-                        tileSize-=8
+                        zoom(-8)
                     elif(tileSize > 2):
-                        tileSize -=2
-                    updateMapSurf(True)
+                        zoom(-2)
 
                 elif event.key == pygame.K_EQUALS:
                     if(tileSize<8):
-                        tileSize+=2
+                        zoom(2)
                     elif(tileSize<64):
-                        tileSize+=8
+                        zoom(8)
                     updateMapSurf(True)
 
             elif event.type == constants.EVENT_UPDATEMAPSURF:
