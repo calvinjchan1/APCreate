@@ -1,5 +1,5 @@
 import pygame, sys, math
-from src import generator, obj
+from src import generator, obj, constants
 from src.objs import player
 import time
 #TODO: Variable tile size - zoom zoom
@@ -13,7 +13,8 @@ tileDict = {
     1:"green",
     2:"darkblue",
     3:"blue",
-    4:"#c6a664"
+    4:"#c6a664",
+    5:"#585858"
 }
 
 def dprint(tag, msg):
@@ -28,7 +29,7 @@ def start():
     '''
     Run once at the beginning of the program
     '''
-    global tileMap, screen, gameClock, plyr, tileSize, debugFont, deltaTime, oldTime
+    global tileMap, screen, gameClock, plyr, tileSize, debugFont, deltaTime, oldTime, mapSurface
 
     #Init pygame
     pygame.init()
@@ -40,6 +41,7 @@ def start():
     Map of tiles, where tile[y][x] is a certain integer
     '''
     tileSize = 32;
+    #mapSurface = pygame.Surface(((player.Player.viewDist*2+1)*generator.Chunk.chunk_width*tileSize, (player.Player.viewDist*2+1)*generator.Chunk.chunk_height*tileSize))
 
 
     #Offset coordinates used to move the map
@@ -57,6 +59,39 @@ def start():
     #Make the player
     plyr = player.Player(1, 1)
 
+    #Init map stuff
+    updateMapSurf(True)
+def updateMapSurf(deep = False):
+    '''
+    Updates map Surface.
+    Use deep to reload all chuncks,
+    otherwise the function will try to use it's memory
+    of what chunks looked like before in order to save time
+    '''
+    global mapSurface, mapSurfLoc
+    if deep:
+        mapSurface = pygame.Surface(((player.Player.viewDist*2+1)*generator.Chunk.chunk_width*tileSize, (player.Player.viewDist*2+1)*generator.Chunk.chunk_height*tileSize))
+    #Get the uppper left chunk, or our 0,0
+    upper_left = None
+    for chunkKey in generator.Chunk.chunks:
+        if upper_left == None or (chunkKey[0]<upper_left[0] and chunkKey[1]<=upper_left[1]) or (chunkKey[1]<upper_left[1] and chunkKey[0]<=upper_left[0]):
+            upper_left = chunkKey
+    mapSurfLoc = (upper_left[0]*generator.Chunk.chunk_width, upper_left[1]*generator.Chunk.chunk_height)
+    #Draw to surface
+    for cy in range(player.Player.viewDist*2+1): #cy, cx short for chunk y chunk x
+        for cx in range(player.Player.viewDist*2+1):
+            chunk = generator.Chunk.chunks[(upper_left[0]+cx,upper_left[1]+cy)]
+            if chunk.new or deep:
+                chunk.mapSurf = pygame.Surface((generator.Chunk.chunk_width*tileSize, generator.Chunk.chunk_height*tileSize))
+                for ty, column in enumerate(chunk.map): #ty, tx short for tile y tile x
+                    for tx, tile in enumerate(column):
+                        #dest = ((cx*generator.Chunk.chunk_width+tx)*tileSize, (cy*generator.Chunk.chunk_height+ty)*tileSize, tileSize, tileSize)
+                        dest = (tx*tileSize, ty*tileSize, tileSize, tileSize)
+                        chunk.mapSurf.fill(pygame.Color(tileDict[tile]), dest)
+                chunk.new = False
+            mapSurface.blit(chunk.mapSurf, (cx*generator.Chunk.chunk_width*tileSize, cy*generator.Chunk.chunk_height*tileSize))
+
+
 def mainLoop():
     '''
     The main loop of the program
@@ -73,7 +108,7 @@ def mainLoop():
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYUP:
+            elif event.type == pygame.KEYUP:
                 #Handle movement using arrow keys
                 if event.key == pygame.K_LEFT:
                     #offsetX-=1
@@ -88,7 +123,7 @@ def mainLoop():
                     #offsetY+=1
                     plyr.setMove("DOWN", False)
 
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 #Handle movement using arrow keys
                 if event.key == pygame.K_LEFT:
                     #offsetX-=1
@@ -109,11 +144,17 @@ def mainLoop():
                         tileSize-=8
                     elif(tileSize > 2):
                         tileSize -=2
+                    updateMapSurf(True)
+
                 elif event.key == pygame.K_EQUALS:
                     if(tileSize<8):
                         tileSize+=2
                     elif(tileSize<64):
                         tileSize+=8
+                    updateMapSurf(True)
+
+            elif event.type == constants.EVENT_UPDATEMAPSURF:
+                updateMapSurf()
 
     def tick():
         for o in obj.objSet:
@@ -154,7 +195,7 @@ def mainLoop():
             map[][ceil(WINDOW_DIMENSIONS[0]/32+offsetX] is right edge of screen
             We need to cap at 0 so we don't go into negative index, because python takes that as seraching from end of list
             '''
-            for x in range(math.floor(offsetX), math.ceil(math.ceil(WINDOW_DIMENSIONS[0]/tileSize+offsetX))):
+            '''for x in range(math.floor(offsetX), math.ceil(math.ceil(WINDOW_DIMENSIONS[0]/tileSize+offsetX))):
                 for y in range(math.floor(offsetY), math.ceil(math.ceil(WINDOW_DIMENSIONS[1]/tileSize+offsetY))):
                     try:
                         chunk_x = math.floor(x/generator.Chunk.chunk_width)
@@ -162,7 +203,9 @@ def mainLoop():
                         tile = generator.Chunk.chunks[(chunk_x, chunk_y)].map[y%generator.Chunk.chunk_height][x%generator.Chunk.chunk_width]
                         drawTile(x-offsetX, y-offsetY, tile)
                     except KeyError:
-                        pass
+                        pass'''
+            #updateMapSurf()
+            screen.blit(mapSurface, ((mapSurfLoc[0]-offsetX)*tileSize,(mapSurfLoc[1]-offsetY)*tileSize))
 
 
 
@@ -215,4 +258,5 @@ def main():
     start()
     mainLoop()
 
-main()
+if __name__ == "__main__":
+    main()

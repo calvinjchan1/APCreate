@@ -3,18 +3,21 @@ Contains the class for the player object
 '''
 import pygame, math
 from src import generator
-from src import obj
+from src import obj, constants
+
 
 
 #CONFIG
-MOVE_INTERVAL = 200 #How many miliseconds to wait between movements when key is held down
+MOVE_INTERVAL = 50 #How many miliseconds to wait between movements when key is held down
 
 class Player(obj.Obj):
+    viewDist = 4
+
     def __init__(self, x, y):
         super().__init__(x, y)
         self.dirTimes = [False, False, False, False] #UP, DOWN, LEFT, RIGHT
         self.dirTimer = 0
-        self.updateChunks(1)
+        self.updateChunks(Player.viewDist)
 
     def draw(self, screen, offsetX, offsetY, tileSize):
         #Draw an orange triangle in the middle of the tile
@@ -64,7 +67,8 @@ class Player(obj.Obj):
             self.x+=1
         elif direction == "LEFT":
             self.x-=1
-        self.updateChunks(1)
+        self.updateChunks(Player.viewDist)
+
 
     def updateChunks(self, distance):
         '''
@@ -80,4 +84,6 @@ class Player(obj.Obj):
                     tempChunks[(x, y)] = generator.Chunk.chunks[(x, y)]
                 except KeyError:
                     tempChunks[(x, y)] = generator.Chunk(x, y)
-        generator.Chunk.chunks = tempChunks
+        if tempChunks != generator.Chunk.chunks:
+            generator.Chunk.chunks = tempChunks
+            pygame.event.post(pygame.event.Event(constants.EVENT_UPDATEMAPSURF))

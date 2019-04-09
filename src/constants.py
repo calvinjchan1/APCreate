@@ -1,0 +1,3 @@
+import pygame
+
+EVENT_UPDATEMAPSURF = pygame.USEREVENT+1
