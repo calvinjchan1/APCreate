@@ -40,7 +40,6 @@ def start():
     Map of tiles, where tile[y][x] is a certain integer
     '''
     tileSize = 32;
-    tileMap = generator.createMap(MAP_DIMENSIONS)
 
 
     #Offset coordinates used to move the map
