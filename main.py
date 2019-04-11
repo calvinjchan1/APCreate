@@ -7,7 +7,6 @@ import time
 #Config
 DEBUG = False
 WINDOW_DIMENSIONS = (1000,600)
-MAP_DIMENSIONS = (200, 200)
 tileDict = {
     0:"grey",
     1:"green",
@@ -17,7 +16,6 @@ tileDict = {
     5:"#585858",#Dark grey
     6:"#909090", #lighter grey
     7: "red"
-
 }
 
 def dprint(tag, msg):
@@ -32,6 +30,23 @@ def start():
     '''
     Run once at the beginning of the program
     '''
+    def mainMenu():
+        while True:
+            response = input("N - New World\nL - Load World\nE - Exit\n")
+            response = response[0].upper()
+            if response == "N":
+                seed = input("Enter a seed for the new world: ")
+                generator.setSeed(seed)
+                break
+            elif response == "L":
+                print("This feature doesn't exist, try again >:(")
+            elif response == "E":
+                sys.exit()
+            else:
+                print("That isn't a valid response. LEARN TO READ")
+
+    mainMenu()
+
     global tileMap, screen, gameClock, plyr, tileSize, debugFont, deltaTime, oldTime, mapSurface
 
     #Init pygame
@@ -44,7 +59,7 @@ def start():
     Map of tiles, where tile[y][x] is a certain integer
     '''
     tileSize = 4
-    #mapSurface = pygame.Surface(((player.Player.viewDist*2+1)*generator.Chunk.chunk_width*tileSize, (player.Player.viewDist*2+1)*generator.Chunk.chunk_height*tileSize))
+    generator.init()
 
 
     #Offset coordinates used to move the map
@@ -121,7 +136,8 @@ def mainLoop():
             #Exit the game
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                start()
+                #sys.exit()
 
             elif event.type == pygame.KEYUP:
                 #Handle movement using arrow keys

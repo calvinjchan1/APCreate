@@ -5,15 +5,24 @@ def randInt():
 
 
 seed = 5
-b = 1
 random.seed(seed)
 #biomeNoise = opensimplex.OpenSimplex(seed*seed)
 localElevationNoise = opensimplex.OpenSimplex(randInt())
 largeElevationNoise = opensimplex.OpenSimplex(randInt())
 
+def init():
+    Chunk.chunks = {}
 
-
-
+def setSeed(newSeed):
+    #Newseed should be a string
+    global seed, localElevationNoise, largeElevationNoise
+    numSeed = 0
+    for char in newSeed:
+        numSeed += ord(char)
+    seed = numSeed
+    random.seed(seed)
+    localElevationNoise = opensimplex.OpenSimplex(randInt())
+    largeElevationNoise = opensimplex.OpenSimplex(randInt())
 
 #Make each chunk a 32x 32 area?
 class Chunk:
@@ -40,7 +49,7 @@ class Chunk:
         for y, column in enumerate(self.map):
             for x, tile in enumerate(self.map):
                 localElevation = self.getNoise(localElevationNoise, x, y, 22.5) #Get the noise for this tile
-                largeElevation = self.getNoise(largeElevationNoise, x, y, 150)
+                largeElevation = self.getNoise(largeElevationNoise, x, y, 200)
                 elevation = largeElevation + 0.3 * localElevation
                 if elevation < -.2:
                     #Make islands
@@ -66,11 +75,11 @@ class Chunk:
                         self.map[y][x] = 3 #Coast
                     #self.map[y][x] = 7
                 #Continents
-                elif elevation < .25:
+                elif elevation < .15:
                     self.map[y][x] = 3 #Coast
-                elif elevation < .35:
+                elif elevation < .25:
                     self.map[y][x] = 4 #Sand
-                elif elevation < .45:
+                elif elevation < .35:
                     self.map[y][x] = 1 #Land
                 else: #We're on solid land
                     if localElevation < .4:
