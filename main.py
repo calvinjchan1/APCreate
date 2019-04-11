@@ -1,5 +1,5 @@
 import pygame, sys, math, os
-from src import generator, obj, constants
+from src import generator, obj, constants, loader
 from src.objs import player
 import time
 #TODO: Variable tile size - zoom zoom
@@ -30,11 +30,8 @@ def start():
     '''
     Run once at the beginning of the program
     '''
-    if not os.path.exists("saves"):
-        try:
-            os.mkdir("saves")
-        except OSError:
-            print("Error Creating Saves Folder\nProgram May Crash")
+    if not loader.init():
+        print("Failed to verify existence of saves folder\nMay cause crashes")
 
     def mainMenu():
         while True:
@@ -43,27 +40,17 @@ def start():
             #Make a new World
             if response == "N":
                 #Make new directory for the world
-                name = None
-                while name == None:
-                    name = input("Enter a name for the world: ")
-                    canNew = True
-                    if os.path.exists("saves/"+name):
-                        name = None
-                        print("That world already exists, enter a new name")
-                    else:
-                        try:
-                            os.mkdir("saves/"+name)
-                        except OSError:
-                            print("Failed to make world directory")
-                            canNew = False
-                #Deal with putting data into the new world
-                if canNew:
-                    seed = input("Enter a seed for the new world: ")
-                    generator.setSeed(seed)
-                    f = open("saves/"+name+"/worlddata", "w")
-                    f.write(seed)
-                    f.close
-                    break
+                created = False
+                while not created:
+                    name = input("Enter a name: ")
+                    seed = input("Enter a seed: ")
+                    if loader.newSave(name, seed) == 0:
+                        created = True
+                        break
+                    print("Error creating world, try again")
+                generator.setSeed(name)
+                break
+
             #Load a world
             elif response == "L":
                 print("This feature doesn't exist, try again >:(")

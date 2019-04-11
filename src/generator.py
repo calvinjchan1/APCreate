@@ -4,14 +4,15 @@ def randInt():
     return int(str(random.random()).replace(".", ""))
 
 
-seed = 5
+'''seed = 5
 random.seed(seed)
 #biomeNoise = opensimplex.OpenSimplex(seed*seed)
 localElevationNoise = opensimplex.OpenSimplex(randInt())
-largeElevationNoise = opensimplex.OpenSimplex(randInt())
+largeElevationNoise = opensimplex.OpenSimplex(randInt())'''
 
 def init():
     Chunk.chunks = {}
+    setSeed("Default")
 
 def setSeed(newSeed):
     #Newseed should be a string
