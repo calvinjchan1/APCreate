@@ -1,4 +1,4 @@
-import pygame, sys, math
+import pygame, sys, math, os
 from src import generator, obj, constants
 from src.objs import player
 import time
@@ -30,20 +30,65 @@ def start():
     '''
     Run once at the beginning of the program
     '''
+    if not os.path.exists("saves"):
+        try:
+            os.mkdir("saves")
+        except OSError:
+            print("Error Creating Saves Folder\nProgram May Crash")
+
     def mainMenu():
         while True:
             response = input("N - New World\nL - Load World\nE - Exit\n")
             response = response[0].upper()
+            #Make a new World
             if response == "N":
-                seed = input("Enter a seed for the new world: ")
-                generator.setSeed(seed)
-                break
+                #Make new directory for the world
+                name = None
+                while name == None:
+                    name = input("Enter a name for the world: ")
+                    canNew = True
+                    if os.path.exists("saves/"+name):
+                        name = None
+                        print("That world already exists, enter a new name")
+                    else:
+                        try:
+                            os.mkdir("saves/"+name)
+                        except OSError:
+                            print("Failed to make world directory")
+                            canNew = False
+                #Deal with putting data into the new world
+                if canNew:
+                    seed = input("Enter a seed for the new world: ")
+                    generator.setSeed(seed)
+                    f = open("saves/"+name+"/worlddata", "w")
+                    f.write(seed)
+                    f.close
+                    break
+            #Load a world
             elif response == "L":
                 print("This feature doesn't exist, try again >:(")
+                #Get all world folders
+                #Make get a selection and make sure it exists
+                worldList = os.listdir("saves")
+                if len(worldList) == 0: #Make sure that there is at least one save to be loaded
+                    print("No worlds found")
+                else:
+                    for name in worldList: #Display saved worlds
+                        print(name)
+                    selection = input("Pick one of these")
+                    if not selection in worldList: #Return to main menu if user makes a choice that doesn't exist
+                        print("That is not a world, returning to main menu")
+                    else:
+                        f = open("saves/"+selection+"/worlddata", "r")#Get the seed from the save file
+                        seed = f.readline()
+                        f.close()
+                        generator.setSeed(seed)
+                        break
+            #Exit the program
             elif response == "E":
                 sys.exit()
             else:
-                print("That isn't a valid response. LEARN TO READ")
+                print("That isn't a valid response. Try again.")
 
     mainMenu()
 
