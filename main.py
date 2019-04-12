@@ -48,12 +48,11 @@ def start():
                         created = True
                         break
                     print("Error creating world, try again")
-                generator.setSeed(name)
+                loader.loadSave(name)
                 break
 
             #Load a world
             elif response == "L":
-                print("This feature doesn't exist, try again >:(")
                 #Get all world folders
                 #Make get a selection and make sure it exists
                 worldList = os.listdir("saves")
@@ -63,14 +62,13 @@ def start():
                     for name in worldList: #Display saved worlds
                         print(name)
                     selection = input("Pick one of these")
-                    if not selection in worldList: #Return to main menu if user makes a choice that doesn't exist
-                        print("That is not a world, returning to main menu")
-                    else:
-                        f = open("saves/"+selection+"/worlddata", "r")#Get the seed from the save file
-                        seed = f.readline()
-                        f.close()
-                        generator.setSeed(seed)
-                        break
+                    result = loader.loadSave(selection)
+                    if result == 0:
+                        break;
+                    elif result == 1:
+                        print("That isn't a valid world")
+                    elif result == 2:
+                        print("Error Loading World")
             #Exit the program
             elif response == "E":
                 sys.exit()
@@ -132,14 +130,15 @@ def updateMapSurf(deep = False):
     for cy in range(player.Player.viewDist*2+1): #cy, cx short for chunk y chunk x
         for cx in range(player.Player.viewDist*2+1):
             chunk = generator.Chunk.chunks[(upper_left[0]+cx,upper_left[1]+cy)]
-            if chunk.new or deep:
+            if chunk.new or deep: #Write a new surface to the chunk so that we can load it later instead of redrawing everything from scratch
                 chunk.mapSurf = pygame.Surface((generator.Chunk.chunk_width*tileSize, generator.Chunk.chunk_height*tileSize))
                 for ty, column in enumerate(chunk.map): #ty, tx short for tile y tile x
                     for tx, tile in enumerate(column):
-                        #dest = ((cx*generator.Chunk.chunk_width+tx)*tileSize, (cy*generator.Chunk.chunk_height+ty)*tileSize, tileSize, tileSize)
+                        #Draw each tile to our the chunk's surface
                         dest = (tx*tileSize, ty*tileSize, tileSize, tileSize)
                         chunk.mapSurf.fill(pygame.Color(tileDict[tile]), dest)
-                chunk.new = False
+                chunk.new = False #Mark that thucnk
+            #Draws the chunks to the map surface
             mapSurface.blit(chunk.mapSurf, (cx*generator.Chunk.chunk_width*tileSize, cy*generator.Chunk.chunk_height*tileSize))
 
 
@@ -287,7 +286,8 @@ def mainLoop():
             lines = [
                 'Tile Size: '+ str(tileSize),
                 "FPS: "+str(gameClock.get_fps()),
-                "X: " + str(plyr.x) + " Y: " + str(plyr.y)
+                "X: " + str(plyr.x) + " Y: " + str(plyr.y),
+                "Seed: " + str(generator.seed)
             ]
             y = 10
             for line in lines:

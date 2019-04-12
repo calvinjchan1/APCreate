@@ -3,7 +3,6 @@ import random, opensimplex
 def randInt():
     return int(str(random.random()).replace(".", ""))
 
-
 '''seed = 5
 random.seed(seed)
 #biomeNoise = opensimplex.OpenSimplex(seed*seed)
@@ -12,7 +11,10 @@ largeElevationNoise = opensimplex.OpenSimplex(randInt())'''
 
 def init():
     Chunk.chunks = {}
-    setSeed("Default")
+    try:
+        seed
+    except NameError:
+        setSeed("Default")
 
 def setSeed(newSeed):
     #Newseed should be a string

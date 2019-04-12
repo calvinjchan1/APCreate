@@ -1,5 +1,5 @@
 import os
-from src import generator
+from main import generator
 
 def init():
     #Makes sure saves folder exists and intilizes module
@@ -32,3 +32,22 @@ def newSave(name, seed):
     f.close
     return 0
 
+def loadSave(name):
+    '''
+    Attempts to load the save of the given name
+    returns 0 if successful, 1 if the world doesn't exist
+    and 2 if it failed for some other reason
+    '''
+    #TODO:Write this function
+    #Make get a selection and make sure it exists
+    worldList = os.listdir("saves")#Get all world folders
+    if len(worldList) == 0: #Make sure that there is at least one save to be loaded
+        return 2
+    if not name in worldList: #Return to main menu if user makes a choice that doesn't exist
+        return 1
+    else:
+        f = open("saves/"+name+"/worlddata", "r")#Get the seed from the save file
+        seed = f.readline()
+        f.close()
+        generator.setSeed(seed)
+        return 0
